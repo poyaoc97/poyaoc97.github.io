@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Mac on Po-yao&#39;s blog</title>
+    <link>http://poyaoc97.github.io/tags/mac/</link>
+    <description>Recent content in Mac on Po-yao&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Fri, 31 Dec 2021 00:00:00 +0000</lastBuildDate><atom:link href="http://poyaoc97.github.io/tags/mac/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Set Up an SSD for Your Tesla on a Mac</title>
+      <link>http://poyaoc97.github.io/posts/2021-12-31-tesla/</link>
+      <pubDate>Fri, 31 Dec 2021 00:00:00 +0000</pubDate>
+      
+      <guid>http://poyaoc97.github.io/posts/2021-12-31-tesla/</guid>
+      <description>Foreword Tesla intriduced custom light show in its holiday update, and I would like to put Tesla dash cam, music, boombox, and custom light show all in one storage device (assumed to be an SSD in this post). By doing this, I can put my SSD in the glove box, which is locked in the case of a breakin. This can be achieved by partitioning the storage device into 4 partitions, during which I found it was a PITA to do with file system other than APFS.</description>
+    </item>
+    
+  </channel>
+</rss>
