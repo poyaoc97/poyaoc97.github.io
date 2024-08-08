@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Posts on Po-Yao&#39;s blog</title>
+    <link>http://poyaoc97.github.io/posts/</link>
+    <description>Recent content in Posts on Po-Yao&#39;s blog</description>
+    <generator>Hugo -- 0.131.0</generator>
+    <language>en</language>
+    <lastBuildDate>Thu, 24 Mar 2022 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://poyaoc97.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Fixed a Bug Crashing Clang</title>
+      <link>http://poyaoc97.github.io/posts/2022-03-24-clang/</link>
+      <pubDate>Thu, 24 Mar 2022 00:00:00 +0000</pubDate>
+      <guid>http://poyaoc97.github.io/posts/2022-03-24-clang/</guid>
+      <description>An ill-formed C++ code snippet Before the fix, this following C++ snippet would crash Clang. From the bug report, we can see how a user might accidentally omit the function name when they meant to declare a member function on line 3.
+To many people&amp;rsquo;s surprise, line 3 is actually parsed as a member variable declaration. The parantheses are insignificant here unlike when declaring a pointer to function or array. So line 3 is essentially T A&amp;lt;T&amp;gt;{};.</description>
+    </item>
+    <item>
+      <title>C&#43;&#43; Trivia;</title>
+      <link>http://poyaoc97.github.io/posts/2022-03-01-cpp-trivia/</link>
+      <pubDate>Tue, 01 Mar 2022 00:00:00 +0000</pubDate>
+      <guid>http://poyaoc97.github.io/posts/2022-03-01-cpp-trivia/</guid>
+      <description>I was browsing 🫣 the latest working draft of the ISO C++ Standard (https://eel.is/c++draft/) and then I found that what a single semicolon is called grammatically depends on where it appears. Cool beans 😎!
+Here&amp;rsquo;s a screenshot illustrating my findings (engorgio): The top half is a piece of valid C++ code stored in sc.cpp and the bottom half is its Clang AST dump with unimportant parts removed.
+The ; in the global scope on line 1 of sc.</description>
+    </item>
+    <item>
+      <title>The Bug Strikes Back: LLDB Bugs Lurking for Over a Decade</title>
+      <link>http://poyaoc97.github.io/posts/2022-01-07-lldb/</link>
+      <pubDate>Fri, 07 Jan 2022 00:00:00 +0800</pubDate>
+      <guid>http://poyaoc97.github.io/posts/2022-01-07-lldb/</guid>
+      <description>The Issue One day, I was wondering how dynamic function call works. I thought I&amp;rsquo;d start with a simple puts call like in this C snippet.
+#include &amp;lt;stdio.h&amp;gt; int main(void) { puts(&amp;#34;Hello\n&amp;#34;); } To see it going through the Procedure Linkage Table (PLT) in the context of lazy binding on x86_64 Linux LIVE, naturally, LLDB came to my mind. To my dismay, instead of something relevant to puts there were only these ugly and unidentifiable ___lldb_unnamed_symbol36 in the disaseembly on LLDB 13.</description>
+    </item>
+    <item>
+      <title>ABI Incompatibility of libc&#43;&#43; and libstdc&#43;&#43; and C&#43;&#43; Inline Namespace</title>
+      <link>http://poyaoc97.github.io/posts/2022-01-06-abi/</link>
+      <pubDate>Thu, 06 Jan 2022 00:00:00 +0000</pubDate>
+      <guid>http://poyaoc97.github.io/posts/2022-01-06-abi/</guid>
+      <description>I ran into linker errors similar to the screenshot below in November 2021. After some close inspection, I realized this was a result of mixing 2 C++ standard libraries, namely libc++ and libstdc++. I was unkowningly 😱 compiling TVM with libc++&amp;rsquo;s headers while linking it against LLVM which was compiled with libstdc++&amp;rsquo;s headers and linked against libstdc++.
+A Simple Example Here is a simple example illustrating what&amp;rsquo;s happening.
+Source Files Given 2 C++ souce files:</description>
+    </item>
+    <item>
+      <title>Set Up an SSD for Your Tesla on a Mac</title>
+      <link>http://poyaoc97.github.io/posts/2021-12-31-tesla/</link>
+      <pubDate>Fri, 31 Dec 2021 00:00:00 +0000</pubDate>
+      <guid>http://poyaoc97.github.io/posts/2021-12-31-tesla/</guid>
+      <description>Foreword Tesla intriduced custom light show in its holiday update, and I would like to put Tesla dash cam, music, boombox, and custom light show all in one storage device (assumed to be an SSD in this post). By doing this, I can put my SSD in the glove box, which is locked in the case of a breakin. This can be achieved by partitioning the storage device into 4 partitions, during which I found it was a PITA to do with file system other than APFS.</description>
+    </item>
+    <item>
+      <title>Set up a blog using Hugo</title>
+      <link>http://poyaoc97.github.io/posts/2020-03-07-set-up-a-blog-using-hugo/</link>
+      <pubDate>Sat, 07 Mar 2020 13:29:30 +0800</pubDate>
+      <guid>http://poyaoc97.github.io/posts/2020-03-07-set-up-a-blog-using-hugo/</guid>
+      <description>&lt;p&gt;本文紀錄如何用Hugo建立blog，並部署到GitHub Pages。&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

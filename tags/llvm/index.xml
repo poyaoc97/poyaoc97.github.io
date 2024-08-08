@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>LLVM on Po-Yao&#39;s blog</title>
+    <link>http://poyaoc97.github.io/tags/llvm/</link>
+    <description>Recent content in LLVM on Po-Yao&#39;s blog</description>
+    <generator>Hugo -- 0.131.0</generator>
+    <language>en</language>
+    <lastBuildDate>Fri, 07 Jan 2022 00:00:00 +0800</lastBuildDate>
+    <atom:link href="http://poyaoc97.github.io/tags/llvm/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>The Bug Strikes Back: LLDB Bugs Lurking for Over a Decade</title>
+      <link>http://poyaoc97.github.io/posts/2022-01-07-lldb/</link>
+      <pubDate>Fri, 07 Jan 2022 00:00:00 +0800</pubDate>
+      <guid>http://poyaoc97.github.io/posts/2022-01-07-lldb/</guid>
+      <description>The Issue One day, I was wondering how dynamic function call works. I thought I&amp;rsquo;d start with a simple puts call like in this C snippet.
+#include &amp;lt;stdio.h&amp;gt; int main(void) { puts(&amp;#34;Hello\n&amp;#34;); } To see it going through the Procedure Linkage Table (PLT) in the context of lazy binding on x86_64 Linux LIVE, naturally, LLDB came to my mind. To my dismay, instead of something relevant to puts there were only these ugly and unidentifiable ___lldb_unnamed_symbol36 in the disaseembly on LLDB 13.</description>
+    </item>
+  </channel>
+</rss>
