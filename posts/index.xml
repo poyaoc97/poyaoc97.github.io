@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Posts on Po-Yao&#39;s blog</title>
+    <link>http://poyaoc97.github.io/posts/</link>
+    <description>Recent content in Posts on Po-Yao&#39;s blog</description>
+    <generator>Hugo -- 0.139.4</generator>
+    <language>en</language>
+    <lastBuildDate>Thu, 24 Mar 2022 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://poyaoc97.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Fixed a Bug Crashing Clang</title>
+      <link>http://poyaoc97.github.io/posts/2022-03-24-clang/</link>
+      <pubDate>Thu, 24 Mar 2022 00:00:00 +0000</pubDate>
+      <guid>http://poyaoc97.github.io/posts/2022-03-24-clang/</guid>
+      <description>&lt;h2 id=&#34;an-ill-formed-c-code-snippet&#34;&gt;An ill-formed C++ code snippet&lt;/h2&gt;
+&lt;p&gt;Before &lt;a href=&#34;https://github.com/llvm/llvm-project/commit/355f1c75aa66fc3d9bef897375f5e0979a55001d&#34;&gt;the fix&lt;/a&gt;,
+this following C++ snippet would crash Clang.
+&lt;img alt=&#34;crash-cpp&#34; loading=&#34;lazy&#34; src=&#34;http://poyaoc97.github.io/img/2022-03-24-clang/crash-cpp.png&#34;&gt;
+From the &lt;a href=&#34;https://llvm.org/PR28101&#34;&gt;bug report&lt;/a&gt;,
+we can see how a user might accidentally omit the function name when they meant to declare a member function on line 3.&lt;/p&gt;
+&lt;p&gt;To many people&amp;rsquo;s surprise, line 3 is actually parsed as a member variable declaration.
+The parantheses are insignificant here unlike when declaring a pointer to function or array. So line 3 is essentially &lt;code&gt;T A&amp;lt;T&amp;gt;{};&lt;/code&gt;.
+The template parameter there is &lt;em&gt;ill-formed&lt;/em&gt; and is handled by &lt;a href=&#34;https://github.com/llvm/llvm-project/commit/942c03910aef43de1cd2c733a82370fd3e2c9981&#34;&gt;942c03910aef&lt;/a&gt;.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>C&#43;&#43; Trivia;</title>
+      <link>http://poyaoc97.github.io/posts/2022-03-01-cpp-trivia/</link>
+      <pubDate>Tue, 01 Mar 2022 00:00:00 +0000</pubDate>
+      <guid>http://poyaoc97.github.io/posts/2022-03-01-cpp-trivia/</guid>
+      <description>&lt;p&gt;I was browsing 🫣 the latest working draft of the ISO C++ Standard (&lt;a href=&#34;https://eel.is/c++draft/&#34;&gt;https://eel.is/c++draft/&lt;/a&gt;) and then I found that what a single semicolon is called grammatically depends on where it appears. Cool beans 😎!&lt;/p&gt;
+&lt;p&gt;Here&amp;rsquo;s a screenshot illustrating my findings (&lt;a href=&#34;http://poyaoc97.github.io/img/2022-03-01-cpp-trivia/clang_ast_dump.png&#34;&gt;engorgio&lt;/a&gt;):
+&lt;img alt=&#34;Clang AST Dump&#34; loading=&#34;lazy&#34; src=&#34;http://poyaoc97.github.io/img/2022-03-01-cpp-trivia/clang_ast_dump.png&#34;&gt;
+The top half is a piece of valid C++ code stored in &lt;code&gt;sc.cpp&lt;/code&gt; and the bottom half is its Clang AST dump
+with unimportant parts removed.&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;;&lt;/code&gt; in the global scope on line 1 of &lt;code&gt;sc.cpp&lt;/code&gt; is an &lt;code&gt;empty-declaration&lt;/code&gt; as noted in &lt;a href=&#34;https://eel.is/c++draft/dcl.pre#nt:empty-declaration&#34;&gt;[decl.pre]p1&lt;/a&gt;.
+The grammar production goes:&lt;br&gt;
+&lt;a href=&#34;https://eel.is/c++draft/basic.link#nt:translation-unit&#34;&gt;&lt;code&gt;translation-unit&lt;/code&gt;&lt;/a&gt;&lt;br&gt;
+-&amp;gt; &lt;a href=&#34;https://eel.is/c++draft/dcl.pre#nt:declaration-seq&#34;&gt;&lt;code&gt;declaration-seq&lt;/code&gt;&lt;/a&gt;&lt;br&gt;
+-&amp;gt; &lt;a href=&#34;https://eel.is/c++draft/dcl.pre#nt:declaration&#34;&gt;&lt;code&gt;declaration&lt;/code&gt;&lt;/a&gt;&lt;br&gt;
+-&amp;gt; &lt;a href=&#34;https://eel.is/c++draft/dcl.pre#nt:empty-declaration&#34;&gt;&lt;code&gt;empty-declaration&lt;/code&gt;&lt;/a&gt;&lt;br&gt;
+-&amp;gt; &lt;code&gt;;&lt;/code&gt;&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>The Bug Strikes Back: LLDB Bugs Lurking for Over a Decade</title>
+      <link>http://poyaoc97.github.io/posts/2022-01-07-lldb/</link>
+      <pubDate>Fri, 07 Jan 2022 00:00:00 +0800</pubDate>
+      <guid>http://poyaoc97.github.io/posts/2022-01-07-lldb/</guid>
+      <description>&lt;h2 id=&#34;the-issue&#34;&gt;The Issue&lt;/h2&gt;
+&lt;p&gt;One day, I was wondering how dynamic function call works.
+I thought I&amp;rsquo;d start with a simple &lt;code&gt;puts&lt;/code&gt; call like in this C snippet.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-C&#34; data-lang=&#34;C&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt;) { &lt;span style=&#34;color:#a6e22e&#34;&gt;puts&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Hello&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;); }
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;To see it going through the &lt;strong&gt;Procedure Linkage Table (PLT)&lt;/strong&gt;
+in the context of lazy binding on x86_64 Linux &lt;em&gt;LIVE&lt;/em&gt;, naturally, LLDB came to my mind.
+To my dismay, instead of something relevant to &lt;code&gt;puts&lt;/code&gt;
+there were only these ugly and unidentifiable &lt;code&gt;___lldb_unnamed_symbol36&lt;/code&gt; in the disaseembly on LLDB 13.0.0 🫠:
+&lt;img alt=&#34;lldb13&#34; loading=&#34;lazy&#34; src=&#34;http://poyaoc97.github.io/img/2022-01-07-lldb/lldb13.png&#34;&gt;
+In comparison, this is GDB 11.1:
+&lt;img alt=&#34;gdb&#34; loading=&#34;lazy&#34; src=&#34;http://poyaoc97.github.io/img/2022-01-07-lldb/gdb.png&#34;&gt;
+Let&amp;rsquo;s see how an older version of LLDB is doing.
+Here&amp;rsquo;s LLDB version 12.0.1 🫥:
+&lt;img alt=&#34;lldb12&#34; loading=&#34;lazy&#34; src=&#34;http://poyaoc97.github.io/img/2022-01-07-lldb/lldb12.png&#34;&gt;
+Apparently, something went wrong between the creation of LLVM version 12 and 13 release branch.
+It turned out that it was
+&lt;a href=&#34;https://github.com/llvm/llvm-project/commit/ec1a49170129&#34;&gt;a patch landing in July 2021&lt;/a&gt; that changed the behavior.
+Someone also filed a &lt;a href=&#34;https://llvm.org/PR52702&#34;&gt;GitHub issue&lt;/a&gt; just a few days before I found this.
+I then commented my findings on &lt;a href=&#34;https://reviews.llvm.org/D106837&#34;&gt;the code review page of the seemingly problematic patch&lt;/a&gt;.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>ABI Incompatibility of libc&#43;&#43; and libstdc&#43;&#43; and C&#43;&#43; Inline Namespace</title>
+      <link>http://poyaoc97.github.io/posts/2022-01-06-abi/</link>
+      <pubDate>Thu, 06 Jan 2022 00:00:00 +0000</pubDate>
+      <guid>http://poyaoc97.github.io/posts/2022-01-06-abi/</guid>
+      <description>&lt;p&gt;I ran into linker errors similar to the screenshot below in November 2021.
+&lt;img alt=&#34;abi_linker_error&#34; loading=&#34;lazy&#34; src=&#34;http://poyaoc97.github.io/img/abi_linker_error.png&#34;&gt;
+After some close inspection, I realized this was a result of mixing 2 C++ standard libraries,
+namely &lt;a href=&#34;https://libcxx.llvm.org/&#34;&gt;&lt;strong&gt;libc++&lt;/strong&gt;&lt;/a&gt; and &lt;a href=&#34;https://gcc.gnu.org/&#34;&gt;&lt;strong&gt;libstdc++&lt;/strong&gt;&lt;/a&gt;.
+I was unkowningly 😱 compiling TVM with libc++&amp;rsquo;s headers while linking it against LLVM
+which was compiled with libstdc++&amp;rsquo;s headers and linked against libstdc++.&lt;/p&gt;
+&lt;h2 id=&#34;a-simple-example&#34;&gt;A Simple Example&lt;/h2&gt;
+&lt;p&gt;Here is a simple example illustrating what&amp;rsquo;s happening.&lt;/p&gt;
+&lt;h3 id=&#34;source-files&#34;&gt;Source Files&lt;/h3&gt;
+&lt;p&gt;Given 2 C++ souce files:&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Set Up an SSD for Your Tesla on a Mac</title>
+      <link>http://poyaoc97.github.io/posts/2021-12-31-tesla/</link>
+      <pubDate>Fri, 31 Dec 2021 00:00:00 +0000</pubDate>
+      <guid>http://poyaoc97.github.io/posts/2021-12-31-tesla/</guid>
+      <description>&lt;p&gt;&lt;img alt=&#34;tesla_matrix_led.jpg&#34; loading=&#34;lazy&#34; src=&#34;http://poyaoc97.github.io/img/tesla_matrix_led.jpg&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;foreword&#34;&gt;Foreword&lt;/h2&gt;
+&lt;p&gt;Tesla intriduced custom light show in its holiday update, and I
+would like to put &lt;strong&gt;Tesla dash cam&lt;/strong&gt;, &lt;strong&gt;music&lt;/strong&gt;, &lt;strong&gt;boombox&lt;/strong&gt;, and &lt;strong&gt;custom light show&lt;/strong&gt; all in one storage device (assumed to be an SSD in this post).
+By doing this, I can put my SSD in the glove box, which is locked in the case of a breakin.
+This can be achieved by partitioning the storage device into 4 partitions, during which I found it was a PITA to
+do with file system other than APFS. Then, I recalled that there was this system utility on macOS
+called &lt;code&gt;diskutil&lt;/code&gt;. Thankfully, the man page is easy to grasp. Nonetheless, I decided to compile a blog post after some light reading.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Set up a blog using Hugo</title>
+      <link>http://poyaoc97.github.io/posts/2020-03-07-set-up-a-blog-using-hugo/</link>
+      <pubDate>Sat, 07 Mar 2020 13:29:30 +0800</pubDate>
+      <guid>http://poyaoc97.github.io/posts/2020-03-07-set-up-a-blog-using-hugo/</guid>
+      <description>&lt;p&gt;本文紀錄如何用Hugo建立blog，並部署到GitHub Pages。&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

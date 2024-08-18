@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>ABI on Po-Yao&#39;s blog</title>
+    <link>http://poyaoc97.github.io/tags/abi/</link>
+    <description>Recent content in ABI on Po-Yao&#39;s blog</description>
+    <generator>Hugo -- 0.139.4</generator>
+    <language>en</language>
+    <lastBuildDate>Thu, 06 Jan 2022 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://poyaoc97.github.io/tags/abi/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>ABI Incompatibility of libc&#43;&#43; and libstdc&#43;&#43; and C&#43;&#43; Inline Namespace</title>
+      <link>http://poyaoc97.github.io/posts/2022-01-06-abi/</link>
+      <pubDate>Thu, 06 Jan 2022 00:00:00 +0000</pubDate>
+      <guid>http://poyaoc97.github.io/posts/2022-01-06-abi/</guid>
+      <description>&lt;p&gt;I ran into linker errors similar to the screenshot below in November 2021.
+&lt;img alt=&#34;abi_linker_error&#34; loading=&#34;lazy&#34; src=&#34;http://poyaoc97.github.io/img/abi_linker_error.png&#34;&gt;
+After some close inspection, I realized this was a result of mixing 2 C++ standard libraries,
+namely &lt;a href=&#34;https://libcxx.llvm.org/&#34;&gt;&lt;strong&gt;libc++&lt;/strong&gt;&lt;/a&gt; and &lt;a href=&#34;https://gcc.gnu.org/&#34;&gt;&lt;strong&gt;libstdc++&lt;/strong&gt;&lt;/a&gt;.
+I was unkowningly 😱 compiling TVM with libc++&amp;rsquo;s headers while linking it against LLVM
+which was compiled with libstdc++&amp;rsquo;s headers and linked against libstdc++.&lt;/p&gt;
+&lt;h2 id=&#34;a-simple-example&#34;&gt;A Simple Example&lt;/h2&gt;
+&lt;p&gt;Here is a simple example illustrating what&amp;rsquo;s happening.&lt;/p&gt;
+&lt;h3 id=&#34;source-files&#34;&gt;Source Files&lt;/h3&gt;
+&lt;p&gt;Given 2 C++ souce files:&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

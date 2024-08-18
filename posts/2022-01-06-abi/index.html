@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>ABI Incompatibility of libc&#43;&#43; and libstdc&#43;&#43; and C&#43;&#43; Inline Namespace | Po-Yao&#39;s blog</title>
+<meta name="keywords" content="ABI, Linking, C&#43;&#43;">
+<meta name="description" content="I ran into linker errors similar to the screenshot below in November 2021.
+
+After some close inspection, I realized this was a result of mixing 2 C&#43;&#43; standard libraries,
+namely libc&#43;&#43; and libstdc&#43;&#43;.
+I was unkowningly 😱 compiling TVM with libc&#43;&#43;&rsquo;s headers while linking it against LLVM
+which was compiled with libstdc&#43;&#43;&rsquo;s headers and linked against libstdc&#43;&#43;.
+A Simple Example
+Here is a simple example illustrating what&rsquo;s happening.
+Source Files
+Given 2 C&#43;&#43; souce files:">
+<meta name="author" content="張博堯 (Po-Yao Chang)">
+<link rel="canonical" href="http://poyaoc97.github.io/posts/2022-01-06-abi/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.d6fcd20a4fb86efa4dfac8ec95da60244cc8871042183da1ef28e3a762ad79c8.css" integrity="sha256-1vzSCk&#43;4bvpN&#43;sjsldpgJEzIhxBCGD2h7yjjp2Ktecg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://poyaoc97.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://poyaoc97.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://poyaoc97.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://poyaoc97.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="http://poyaoc97.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://poyaoc97.github.io/posts/2022-01-06-abi/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><meta property="og:url" content="http://poyaoc97.github.io/posts/2022-01-06-abi/">
+  <meta property="og:site_name" content="Po-Yao&#39;s blog">
+  <meta property="og:title" content="ABI Incompatibility of libc&#43;&#43; and libstdc&#43;&#43; and C&#43;&#43; Inline Namespace">
+  <meta property="og:description" content="I ran into linker errors similar to the screenshot below in November 2021. After some close inspection, I realized this was a result of mixing 2 C&#43;&#43; standard libraries, namely libc&#43;&#43; and libstdc&#43;&#43;. I was unkowningly 😱 compiling TVM with libc&#43;&#43;’s headers while linking it against LLVM which was compiled with libstdc&#43;&#43;’s headers and linked against libstdc&#43;&#43;.
+A Simple Example Here is a simple example illustrating what’s happening.
+Source Files Given 2 C&#43;&#43; souce files:">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2022-01-06T00:00:00+00:00">
+    <meta property="article:modified_time" content="2022-01-06T00:00:00+00:00">
+    <meta property="article:tag" content="ABI">
+    <meta property="article:tag" content="Linking">
+    <meta property="article:tag" content="C&#43;&#43;">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ABI Incompatibility of libc&#43;&#43; and libstdc&#43;&#43; and C&#43;&#43; Inline Namespace">
+<meta name="twitter:description" content="I ran into linker errors similar to the screenshot below in November 2021.
+
+After some close inspection, I realized this was a result of mixing 2 C&#43;&#43; standard libraries,
+namely libc&#43;&#43; and libstdc&#43;&#43;.
+I was unkowningly 😱 compiling TVM with libc&#43;&#43;&rsquo;s headers while linking it against LLVM
+which was compiled with libstdc&#43;&#43;&rsquo;s headers and linked against libstdc&#43;&#43;.
+A Simple Example
+Here is a simple example illustrating what&rsquo;s happening.
+Source Files
+Given 2 C&#43;&#43; souce files:">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "http://poyaoc97.github.io/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "ABI Incompatibility of libc++ and libstdc++ and C++ Inline Namespace",
+      "item": "http://poyaoc97.github.io/posts/2022-01-06-abi/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "ABI Incompatibility of libc++ and libstdc++ and C++ Inline Namespace",
+  "name": "ABI Incompatibility of libc\u002b\u002b and libstdc\u002b\u002b and C\u002b\u002b Inline Namespace",
+  "description": "I ran into linker errors similar to the screenshot below in November 2021. After some close inspection, I realized this was a result of mixing 2 C++ standard libraries, namely libc++ and libstdc++. I was unkowningly 😱 compiling TVM with libc++\u0026rsquo;s headers while linking it against LLVM which was compiled with libstdc++\u0026rsquo;s headers and linked against libstdc++.\nA Simple Example Here is a simple example illustrating what\u0026rsquo;s happening.\nSource Files Given 2 C++ souce files:\n",
+  "keywords": [
+    "ABI", "Linking", "C++"
+  ],
+  "articleBody": "I ran into linker errors similar to the screenshot below in November 2021. After some close inspection, I realized this was a result of mixing 2 C++ standard libraries, namely libc++ and libstdc++. I was unkowningly 😱 compiling TVM with libc++’s headers while linking it against LLVM which was compiled with libstdc++’s headers and linked against libstdc++.\nA Simple Example Here is a simple example illustrating what’s happening.\nSource Files Given 2 C++ souce files:\nprint_all.cpp #include #include void print_all(const std::string\u0026 str) { for (auto idx = 0uz; auto i : str) { printf(\"%lu\\t%c\\n\", ++idx, i); } } Side note:\nThe uz suffix was introduced to C++23 by P0330, and the init-statement in range-based for was introduced to C++20 by P0614.\nmain.cpp #include void print_all(const std::string\u0026); int main() { print_all(\"Hello World!\"); } Object Files We compile print_all.cpp with headers of libc++ and libstdc++ respectively:\nclang++ -std=c++2b -O3 -c print_all.cpp -stdlib=libc++ -o print_all_libc++.o clang++ -std=c++2b -O3 -c print_all.cpp -stdlib=libstdc++ -o print_all_libstdc++.o And then compile main.cpp with libc++’s header files:\nclang++ -std=c++2b -O3 -c main.cpp -stdlib=libc++ -o main-libc++.o Symbol Tables We can inspect symbols of each object file by running nm --demangle *.o.\nmain-libc++.o: 0000000000000000 r GCC_except_table0 U _Unwind_Resume U print_all(std::__2::basic_string",
+  "wordCount" : "635",
+  "inLanguage": "en",
+  "datePublished": "2022-01-06T00:00:00Z",
+  "dateModified": "2022-01-06T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "張博堯 (Po-Yao Chang)"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "http://poyaoc97.github.io/posts/2022-01-06-abi/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Po-Yao's blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "http://poyaoc97.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://poyaoc97.github.io/" accesskey="h" title="Po-Yao&#39;s blog (Alt + H)">Po-Yao&#39;s blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://poyaoc97.github.io/archives/" title="Archive">
+                    <span>Archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://poyaoc97.github.io/about/" title="About">
+                    <span>About</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://github.com/poyaoc97" title="GitHub">
+                    <span>GitHub</span>&nbsp;
+                    <svg fill="none" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12">
+                        <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
+                        <path d="M15 3h6v6"></path>
+                        <path d="M10 14L21 3"></path>
+                    </svg>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      ABI Incompatibility of libc&#43;&#43; and libstdc&#43;&#43; and C&#43;&#43; Inline Namespace
+    </h1>
+    <div class="post-meta"><span title='2022-01-06 00:00:00 +0000 UTC'>January 6, 2022</span>&nbsp;·&nbsp;張博堯 (Po-Yao Chang)
+
+</div>
+  </header> 
+  <div class="post-content"><p>I ran into linker errors similar to the screenshot below in November 2021.
+<img alt="abi_linker_error" loading="lazy" src="/img/abi_linker_error.png">
+After some close inspection, I realized this was a result of mixing 2 C++ standard libraries,
+namely <a href="https://libcxx.llvm.org/"><strong>libc++</strong></a> and <a href="https://gcc.gnu.org/"><strong>libstdc++</strong></a>.
+I was unkowningly 😱 compiling TVM with libc++&rsquo;s headers while linking it against LLVM
+which was compiled with libstdc++&rsquo;s headers and linked against libstdc++.</p>
+<h2 id="a-simple-example">A Simple Example<a hidden class="anchor" aria-hidden="true" href="#a-simple-example">#</a></h2>
+<p>Here is a simple example illustrating what&rsquo;s happening.</p>
+<h3 id="source-files">Source Files<a hidden class="anchor" aria-hidden="true" href="#source-files">#</a></h3>
+<p>Given 2 C++ souce files:</p>
+<h4 id="print_allcpp">print_all.cpp<a hidden class="anchor" aria-hidden="true" href="#print_allcpp">#</a></h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C++" data-lang="C++"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;cstdio&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;string&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">print_all</span>(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>string<span style="color:#f92672">&amp;</span> str) {
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span> idx <span style="color:#f92672">=</span> <span style="color:#ae81ff">0u</span>z; <span style="color:#66d9ef">auto</span> i : str) {
+</span></span><span style="display:flex;"><span>    printf(<span style="color:#e6db74">&#34;%lu</span><span style="color:#ae81ff">\t</span><span style="color:#e6db74">%c</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, <span style="color:#f92672">++</span>idx, i);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Side note:</p>
+<blockquote>
+<p>The <code>uz</code> suffix was introduced to C++23 by <a href="https://wg21.link/P0330">P0330</a>,
+and the init-statement in range-based for was introduced to C++20 by <a href="https://wg21.link/P0614">P0614</a>.</p>
+</blockquote>
+<h4 id="maincpp">main.cpp<a hidden class="anchor" aria-hidden="true" href="#maincpp">#</a></h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C++" data-lang="C++"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;string&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">print_all</span>(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>string<span style="color:#f92672">&amp;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>() { print_all(<span style="color:#e6db74">&#34;Hello World!&#34;</span>); }
+</span></span></code></pre></div><h3 id="object-files">Object Files<a hidden class="anchor" aria-hidden="true" href="#object-files">#</a></h3>
+<p>We compile <code>print_all.cpp</code> with headers of <code>libc++</code> and <code>libstdc++</code> respectively:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>clang++ -std<span style="color:#f92672">=</span>c++2b -O3 -c print_all.cpp -stdlib<span style="color:#f92672">=</span>libc++ -o print_all_libc++.o
+</span></span><span style="display:flex;"><span>clang++ -std<span style="color:#f92672">=</span>c++2b -O3 -c print_all.cpp -stdlib<span style="color:#f92672">=</span>libstdc++ -o print_all_libstdc++.o
+</span></span></code></pre></div><p>And then compile <code>main.cpp</code> with <code>libc++</code>&rsquo;s header files:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>clang++ -std<span style="color:#f92672">=</span>c++2b -O3 -c main.cpp -stdlib<span style="color:#f92672">=</span>libc++ -o main-libc++.o
+</span></span></code></pre></div><h3 id="symbol-tables">Symbol Tables<a hidden class="anchor" aria-hidden="true" href="#symbol-tables">#</a></h3>
+<p>We can inspect symbols of each object file by running <code>nm --demangle *.o</code>.</p>
+<pre tabindex="0"><code>main-libc++.o:
+0000000000000000 r GCC_except_table0
+                 U _Unwind_Resume
+                 U print_all(std::__2::basic_string&lt;char, std::__2::char_traits&lt;char&gt;, std::__2::allocator&lt;char&gt; &gt; const&amp;)
+                 U operator delete(void*)
+                 U __gxx_personality_v0
+0000000000000000 T main
+
+print_all_libc++.o:
+0000000000000000 T print_all(std::__2::basic_string&lt;char, std::__2::char_traits&lt;char&gt;, std::__2::allocator&lt;char&gt; &gt; const&amp;)
+                 U printf
+
+print_all_libstdc++.o:
+0000000000000000 T print_all(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;)
+                 U __gxx_personality_v0
+                 U printf
+</code></pre><p>The <code>print_all</code> of <code>print_all_libc++.o</code> and <code>print_all_libstdc++.o</code>
+have different function signatures hence different symbol names!
+We will get to those different <code>std::basic_string&lt;char, char_traits&lt;char&gt;, allocator&lt;char&gt; &gt;</code> in a moment.</p>
+<h3 id="linking">Linking<a hidden class="anchor" aria-hidden="true" href="#linking">#</a></h3>
+<p>Let&rsquo;s first link <code>main-libc++</code> and <code>print_all_libc++.o</code> together.</p>
+<pre tabindex="0"><code>clang++ -stdlib=libc++ -fuse-ld=lld main-libc++.o print_all_libc++.o
+</code></pre><p>Voila, the resulting executable works as intended.</p>
+<p>Next, let&rsquo;s see what would happen if we linked <code>main-libc++</code> and <code>print_all_libstdc++.o</code> together.</p>
+<pre tabindex="0"><code>❯ clang++ -stdlib=libc++ -fuse-ld=lld main-libc++.o print_all_libstdc++.o
+ld.lld: error: undefined symbol: print_all(std::__2::basic_string&lt;char, std::__2::char_traits&lt;char&gt;, std::__2::allocator&lt;char&gt; &gt; const&amp;)
+&gt;&gt;&gt; referenced by main.cpp
+&gt;&gt;&gt;               main-libc++.o:(main)
+clang-14: error: linker command failed with exit code 1 (use -v to see invocation)
+</code></pre><p>It failed expectedly as the linker cannot find
+<code>print_all(std::__2::basic_string&lt;char, std::__2::char_traits&lt;char&gt;, std::__2::allocator&lt;char&gt; &gt; const&amp;)</code> in
+<code>print_all_libstdc++.o</code> (see the <code>nm</code> output in the previous section).
+This is exactly the problem we came across!</p>
+<h2 id="inline-namespace">Inline Namespace<a hidden class="anchor" aria-hidden="true" href="#inline-namespace">#</a></h2>
+<p>It turns out that there is this thing called <strong>inline namespace</strong>
+which is sort of transparent to library users but not to compilers and linkers
+in that it is soldered into symbol names.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C++" data-lang="C++"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;cstdio&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;string&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">namespace</span> not_std {
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">inline</span> <span style="color:#66d9ef">namespace</span> v1 {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">print_all</span>(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>string<span style="color:#f92672">&amp;</span> str) {
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span> idx <span style="color:#f92672">=</span> <span style="color:#ae81ff">0u</span>z; <span style="color:#66d9ef">auto</span> i : str) {
+</span></span><span style="display:flex;"><span>    printf(<span style="color:#e6db74">&#34;%lu</span><span style="color:#ae81ff">\t</span><span style="color:#e6db74">%c</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, <span style="color:#f92672">++</span>idx, i);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>} <span style="color:#75715e">// namespace v1
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>} <span style="color:#75715e">// namespace not_std
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>  not_std<span style="color:#f92672">::</span>print_all(<span style="color:#e6db74">&#34;Hello World!&#34;</span>);     <span style="color:#75715e">// works
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  not_std<span style="color:#f92672">::</span>v1<span style="color:#f92672">::</span>print_all(<span style="color:#e6db74">&#34;Hello World!&#34;</span>); <span style="color:#75715e">// also works
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span></code></pre></div><h3 id="stdstring">std::string<a hidden class="anchor" aria-hidden="true" href="#stdstring">#</a></h3>
+<p>Hence, when we write <code>std::string</code>,
+it is not what we think it is naively (type alias of <code>std::basic_string&lt;char&gt;</code>).
+Instead, for <code>libc++</code>, it is</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c++" data-lang="c++"><span style="display:flex;"><span>std<span style="color:#f92672">::</span>__2<span style="color:#f92672">::</span>basic_string<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">char</span>, std<span style="color:#f92672">::</span>__2<span style="color:#f92672">::</span>char_traits<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">char</span><span style="color:#f92672">&gt;</span>, std<span style="color:#f92672">::</span>__2<span style="color:#f92672">::</span>allocator<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">char</span><span style="color:#f92672">&gt;&gt;</span>
+</span></span></code></pre></div><p>or</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c++" data-lang="c++"><span style="display:flex;"><span>std<span style="color:#f92672">::</span>__1<span style="color:#f92672">::</span>basic_string<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">char</span>, std<span style="color:#f92672">::</span>__1<span style="color:#f92672">::</span>char_traits<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">char</span><span style="color:#f92672">&gt;</span>, std<span style="color:#f92672">::</span>__1<span style="color:#f92672">::</span>allocator<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">char</span><span style="color:#f92672">&gt;&gt;</span>
+</span></span></code></pre></div><p>or for <code>libstdc++</code></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c++" data-lang="c++"><span style="display:flex;"><span>std<span style="color:#f92672">::</span>__cxx11<span style="color:#f92672">::</span>basic_string<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">char</span>, std<span style="color:#f92672">::</span>char_traits<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">char</span><span style="color:#f92672">&gt;</span>, std<span style="color:#f92672">::</span>allocator<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">char</span><span style="color:#f92672">&gt;&gt;</span>
+</span></span></code></pre></div><h3 id="use-cases">Use cases<a hidden class="anchor" aria-hidden="true" href="#use-cases">#</a></h3>
+<p>Inline namespace can be used for library versioning.
+In the case of <code>libc++</code>, the inline namespace is used for ABI versioning and is used for nearly every name,
+contrary to <code>libstdc++</code>, which seems to use it only for differentiating SSO (small string optimization) string from the pre-C++11 one.</p>
+<h4 id="more-on-libc-abi-versioning">More on libc++ ABI versioning<a hidden class="anchor" aria-hidden="true" href="#more-on-libc-abi-versioning">#</a></h4>
+<p>Notice in the <a href="#symbol-tables">Symbol Table</a> section, there are <code>__2</code> following <code>std::</code> in all libc++ symbols.
+It&rsquo;s <code>__1</code> by default but I configured and built libc++ with <code>LIBCXX_ABI_VERSION</code> set to 2 just for fun.
+The differences from ABI version 1 can be found
+<a href="https://github.com/llvm/llvm-project/blob/cd84cf90e908/libcxx/include/__config#L63-L189">here</a>.
+Version 2 includes alternate string layout, which is
+<a href="https://github.com/llvm/llvm-project/blob/cd84cf90e908/libcxx/include/__config#L486-L489">also used for Apple arm64</a>.</p>
+<h2 id="conclusion">Conclusion<a hidden class="anchor" aria-hidden="true" href="#conclusion">#</a></h2>
+<p>When faced with linker errors, we must be as patient as we can, as Yoda put it, &ldquo;patience you must have, my young padawan&rdquo;.
+Also, by no means do you ever want to mingle libc++ and libstdc++.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="http://poyaoc97.github.io/tags/abi/">ABI</a></li>
+      <li><a href="http://poyaoc97.github.io/tags/linking/">Linking</a></li>
+      <li><a href="http://poyaoc97.github.io/tags/c&#43;&#43;/">C&#43;&#43;</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="http://poyaoc97.github.io/posts/2022-01-07-lldb/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>The Bug Strikes Back: LLDB Bugs Lurking for Over a Decade</span>
+  </a>
+  <a class="next" href="http://poyaoc97.github.io/posts/2021-12-31-tesla/">
+    <span class="title">Next »</span>
+    <br>
+    <span>Set Up an SSD for Your Tesla on a Mac</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2024 <a href="http://poyaoc97.github.io/">Po-Yao&#39;s blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
